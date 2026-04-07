@@ -1,4 +1,5 @@
 import bcrypt from "bcrypt";
+import mongoose from 'mongoose';
 import { check, validationResult } from 'express-validator';
 import pkg from '../models/user.js';
 const User = pkg;
@@ -118,5 +119,19 @@ export const loginUser=[
 
 
 ];
+
+export const getUser=async(req,res)=>{
+    const {id}=req.params;
+    try{
+        const user=await User.findById(id);
+        if(!user){
+            return res.status(404).json({message:"User not found"});
+        }
+        res.status(200).json({message:"User found",user});
+    }catch(err){
+        console.log(err);
+        return res.status(500).json({message:"Server error: Unable to fetch User"});
+    }
+}
 
 
