@@ -25,8 +25,8 @@ const userSchema=mongoose.Schema({
     },
     role:{
         type:String,
-        default:"Student",
-        enum:["Student","Teacher","Admin"],
+        default:"student",
+        enum:["student","teacher","admin"],
 
     },
     department:{
@@ -34,7 +34,7 @@ const userSchema=mongoose.Schema({
         trim:true,
         default:null
     },
-    experties:{
+    expertise:{
         type:[String],
         default:[]
 
