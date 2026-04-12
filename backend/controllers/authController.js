@@ -91,17 +91,14 @@ export const loginUser=[
     .withMessage('Password is required')
 
     ,
-    check('role')
-    .notEmpty()
-    .withMessage('Role is required')
-    ,
+    
     async(req,res)=>{
-        const {email,password,role}=req.body;
+        const {email,password}=req.body;
         const errors=validationResult(req);
         if(!errors.isEmpty()){
             return res.status(422).json({
                errors: errors.array().map(err => err.msg),
-               oldInput: { email, password, role}
+               oldInput: { email, password}
 
              })
         }

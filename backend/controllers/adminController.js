@@ -41,7 +41,7 @@ export const createUser=async(req,res)=>{
             if (!parsedMaxStudents || parsedMaxStudents <= 0){
                 return res.status(400).json({message:"maxStudents must be a number"});
             }
-            user=await User.create({name,email,password:hashedPassword,role,department,expertise,maxStudents});
+            user=await User.create({name,email,password:hashedPassword,role,department,expertise,maxStudents:parsedMaxStudents});
             
         }
         user.password=undefined;
