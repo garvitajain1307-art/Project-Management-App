@@ -1,5 +1,7 @@
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
+import crypto from "crypto";
 
 const userSchema=mongoose.Schema({
     name:{
@@ -67,6 +69,18 @@ const userSchema=mongoose.Schema({
     timestamps:true,
 }
 )
+
+userSchema.methods.generateToken=function(){
+    return jwt.sign({id:this._id},process.env.JWT_SECRET,{
+        expiresIn:process.env.JWT_EXPIRE,
+    }
+    )
+}
+
+// userSchema.methods.getResetPasswordToken=function(){
+//     const resetToken=crypto.randomBytes(20).toString("hex");
+//     this.getResetPasswordToken=crypto
+// }
 
 const User=mongoose.model('User',userSchema);
 

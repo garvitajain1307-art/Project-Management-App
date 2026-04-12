@@ -207,7 +207,8 @@ export const getAllUsers=async(req,res)=>{
             return res.status(403).json({message:"Access to admin users is forbidden"});
         }
         const skip=(parseInt(page)-1)*parseInt(limit);
-        const users=await User.find(filter).select("-password").skip(skip).limit(parseInt(limit));
+        //-1:newest to oldest 
+        const users=await User.find(filter).select("-password").sort({ createdAt: -1 }).skip(skip).limit(parseInt(limit));
         const total=await User.countDocuments(filter);
         return res.status(200).json({total,page:parseInt(page),limit:parseInt(limit),users,message:"Users fetched successfully"});
 

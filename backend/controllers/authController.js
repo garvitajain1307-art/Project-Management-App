@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
 import mongoose from 'mongoose';
 import { check, validationResult } from 'express-validator';
+import {generateToken} from "../utils/generateToken.js";
 import pkg from '../models/user.js';
 const User = pkg;
 
@@ -63,7 +64,8 @@ export const registerUser=[
             }
             const hashedPassword=await bcrypt.hash(password,12);
             const user=await User.create({name,email,password:hashedPassword});
-            res.status(201).json({message:"User created successfully",user});
+            // res.status(201).json({message:"User created successfully",user});
+            generateToken(user,201,"User registered successfully",res);
 
         }catch(err){
             console.log(err);
@@ -87,15 +89,19 @@ export const loginUser=[
     check('password')
     .notEmpty()
     .withMessage('Password is required')
-    
+
+    ,
+    check('role')
+    .notEmpty()
+    .withMessage('Role is required')
     ,
     async(req,res)=>{
-        const {email,password}=req.body;
+        const {email,password,role}=req.body;
         const errors=validationResult(req);
         if(!errors.isEmpty()){
             return res.status(422).json({
                errors: errors.array().map(err => err.msg),
-               oldInput: { email, password }
+               oldInput: { email, password, role}
 
              })
         }
@@ -109,7 +115,8 @@ export const loginUser=[
             if(!isMatch){
                 return res.status(400).json({message:"Invalid credentials"});
             }
-            res.status(200).json({message:"Login successfull",user});
+            // res.status(200).json({message:"Login successfull",user});
+            generateToken(user,200,"Login successfull",res);
         }catch(err){
             console.log(err);
             res.status(500).json({message:"Server error: Unable to Login"});
@@ -120,18 +127,62 @@ export const loginUser=[
 
 ];
 
-export const getUser=async(req,res)=>{
-    const {id}=req.params;
+//--------------------------------
+//Logout a User
+//--------------------------------
+
+export const logout=async(req,res)=>{
     try{
-        const user=await User.findById(id);
-        if(!user){
-            return res.status(404).json({message:"User not found"});
-        }
+        res.status(200).cookie("token","", {
+            expires:new Date(Date.now()),
+            httpOnly:true
+        }).json({
+            success:true,
+            message:"Logged out successfully",
+
+        })
+
+
+    }catch(err){
+        console.log(err);
+        res.status(500).json({message:"Server error: Unable to Logout"});
+    }
+    
+}
+
+//--------------------------------
+//GET a User
+//--------------------------------
+
+
+export const getUser=async(req,res)=>{
+    
+    try{
+        const user=req.user;
         res.status(200).json({message:"User found",user});
     }catch(err){
         console.log(err);
         return res.status(500).json({message:"Server error: Unable to fetch User"});
     }
+}
+
+
+export const forgotPassword=async(req,res)=>{
+    // try{
+    //     const user=await User.findOne({email:req.body.email});
+    //     if(!user){
+    //         return res.status(404).json({message:"User not found with this email"});
+    //     }
+    //     const resetToken=user.getResetPasswordToken();
+    //     await user.save({validateBeforeSave:false});
+
+    // }
+
+
+}
+
+export const resetPassword=async(req,res)=>{
+
 }
 
 
