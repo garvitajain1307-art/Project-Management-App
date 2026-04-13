@@ -47,7 +47,7 @@ const projectSchema = new mongoose.Schema({
         required: true,
       },
       uploadedAt: {
-        type: String,
+        type: Data,
         default: Date.now(),
       },
     },
