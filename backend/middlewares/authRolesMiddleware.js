@@ -5,7 +5,7 @@ const User = pkg;
 export const isAuthorized=(role)=>{
     return (req,res,next)=>{
         try{
-            if(!req.user.role!=role){
+            if(req.user.role!=role){
                 return res.status(403).json({message:`Only ${role} can access this resource`});
             }
             next();

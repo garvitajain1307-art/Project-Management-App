@@ -4,7 +4,7 @@ import { check, validationResult } from 'express-validator';
 import pkg from '../models/user.js';
 const User = pkg;
 import Project from '../models/project.js';
-import User from '../models/user.js';
+
 
 export const getStudentProject =async(req,res)=>{
     try{
