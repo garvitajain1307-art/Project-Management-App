@@ -4,6 +4,8 @@ import { check, validationResult } from 'express-validator';
 import pkg from '../models/user.js';
 const User = pkg;
 import Project from '../models/project.js';
+import Notification from "../models/notification.js";
+import SupervisorRequest from "../models/supervisorRequest.js";
 
 
 export const getStudentProject =async(req,res)=>{
@@ -99,4 +101,62 @@ export const getAvailableSupervisors=async(req,res)=>{
         return res.status(500).json({message:"Server error occured while fetching supervisors"});
     }
 }
+
+export const getSupervisor=async(req,res)=>{
+    try{
+        const studentId=req.params._id;
+        //supervisor as a field in User model stores ObjectId, .populate replaces the id with actual data (name,email,dept,expertise)
+        const student=await User.findById(studentId).populate("supervisor","name email department expertise");
+
+        if(!student.supervisor){
+            return res.status(200).json({message:"No supervisor assigned yet"})
+        };
+        return res.status(200).json({message:"There is a supervisor",supervisor:student.supervisor});
+    }catch(err){
+        console.log(err)
+        return res.status(500).json({message:"Server error. Can't get supervisor"});
+    }
+}
+
+export const requestSupervisor=async(req,res)=>{
+    try{
+        const {teacherId,message}=req.body;
+        const studentId=req.params._id;
+
+        const student=await User.findById(studentId);
+        if(student.supervisor){
+            return res.status(400).json({message:"You have been already assigned a supervisor"});
+        }
+        const supervisor=await User.findById(teacherId);
+        if(!supervisor||supervisor.role!=="teacher"){
+            return res.status(400).json({message:"Invalid supervisor selected"});
+        }
+        if(supervisor.maxStudents===supervisor.assignedStudents.length){
+            return res.status(400).json({message:"Assigned Students have reached maximum capacity"});
+        }
+        const existingRequest=await SupervisorRequest.findOne({student:studentId,teacher:teacherId,status:"pending"});
+        if(existingRequest){
+            return res.status(400).json({message:"You already have a pending request sent to this supervisor"});
+        }
+        const request=await SupervisorRequest.create({
+            student:studentId,teacher:teacherId,message
+        });
+        await Notification.create({
+            user:teacherId,
+            message:`${student.name} has requested you as a supervisor`,
+            type:"request",
+            priority:"medium",
+            link: `/supervisor-requests/${request._id}`
+
+        });
+        return res.status(200).json({message:"Request sent successfully",request});
+
+    }catch(err){
+        console.log(err);
+        return res.status(500).json({message:"Server error. Can't get supervisor"});
+
+
+    }
+}
+
 

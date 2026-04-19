@@ -21,7 +21,7 @@ const supervisorRequestSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    required: [true, "Project description is required"],
+    required: [true, "Status is required"],
     default:"pending",
     enum:["pending","approved","rejected"]
   },
@@ -36,6 +36,6 @@ supervisorRequestSchema.index({student:1});
 supervisorRequestSchema.index({supervisor:1});
 supervisorRequestSchema.index({status:1});
 
-const SupervisorRequestSchema=mongoose.model('SupervisorRequestSchema',supervisorRequestSchema);
+const SupervisorRequest=mongoose.model('SupervisorRequest',supervisorRequestSchema);
 
-export default SupervisorRequestSchema;
+export default SupervisorRequest;
